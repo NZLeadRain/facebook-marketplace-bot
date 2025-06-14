@@ -19,7 +19,6 @@ def update_listings(listings, type, scraper):
 def remove_listing(data, listing_type, scraper) :
 	title = generate_title_for_listing_type(data, listing_type)
 	listing_title = find_listing_by_title(title, scraper)
-
 	# Listing not found so stop the function
 	if not listing_title:
 		return
@@ -28,13 +27,13 @@ def remove_listing(data, listing_type, scraper) :
 
 	# Click on the delete listing button
 	scraper.element_click('div:not([role="gridcell"]) > div[aria-label="Delete"][tabindex="0"]')
-	
+
 	# Click on confirm button to delete
-	confirm_delete_selector = 'div[aria-label="Delete listing"] div[aria-label="Delete"][tabindex="0"]'
+	confirm_delete_selector = 'div[aria-hidden="false"] div[aria-label="Delete"][tabindex="0"]'
 	if scraper.find_element(confirm_delete_selector, False, 3):
 		scraper.element_click(confirm_delete_selector)
 	else:
-		confirm_delete_selector = 'div[aria-label="Delete Listing"] div[aria-label="Delete"][tabindex="0"]'
+		confirm_delete_selector = 'div[aria-hidden="false"] div[aria-label="Delete"][tabindex="0"]'
 		if scraper.find_element(confirm_delete_selector, True, 3):
 			scraper.element_click(confirm_delete_selector)
 	
@@ -54,8 +53,8 @@ def publish_listing(data, listing_type, scraper):
 		scraper.element_click(create_listing_button_selector)
 
 	# Choose listing type
-	scraper.element_click('a[href="/marketplace/create/' + listing_type + '/"]')
-
+	#scraper.element_click('a[href="/marketplace/create/' + listing_type + '/"]')
+	scraper.element_click_by_xpath('//span[text()="Item for sale"]')
 	# Create string that contains all of the image paths separeted by \n
 	images_path = generate_multiple_images_path(data['Photos Folder'], data['Photos Names'])
 	# Add images to the the listing
@@ -186,9 +185,10 @@ def generate_title_for_listing_type(data, listing_type):
 def add_listing_to_multiple_groups(data, scraper):
 	# Create an array for group names by spliting the string by this symbol ";"
 	group_names = data['Groups'].split(';')
-
+	# Clean the array of empty strings.
+	group_names = [name for name in group_names if name.strip()]
 	# If the groups are empty do not do nothing
-	if not group_names:
+	if not group_names or group_names == "''":
 		return
 
 	# Post in different groups
@@ -254,7 +254,6 @@ def find_listing_by_title(title, scraper):
 	scraper.element_delete_text('input[placeholder="Search your listings"]')
 	# Enter the title of the listing in the input for search
 	scraper.element_send_keys('input[placeholder="Search your listings"]', title)
-	
 	return scraper.find_element_by_xpath('//span[text()="' + title + '"]', False, 10)
 
 def wait_until_listing_is_published(listing_type, scraper):
