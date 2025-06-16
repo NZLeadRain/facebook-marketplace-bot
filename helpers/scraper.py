@@ -233,9 +233,10 @@ class Scraper:
 			element.click()
 		except ElementClickInterceptedException:
 			self.driver.execute_script("arguments[0].click();", element)
-		
-		if "\n" in text:
-			for line in text.split('\n'):
+
+		#Handle new lines	
+		if "\\n" in text:
+			for line in text.split('\\n'):
 				element.send_keys(line)
 				element.send_keys(Keys.ENTER)
 		else:
