@@ -234,7 +234,12 @@ class Scraper:
 		except ElementClickInterceptedException:
 			self.driver.execute_script("arguments[0].click();", element)
 		
-		element.send_keys(text)
+		if "\n" in text:
+			for line in text.split('\n'):
+				element.send_keys(line)
+				element.send_keys(Keys.ENTER)
+		else:
+			element.send_keys(text)
 
 	def input_file_add_files(self, selector, files):
 		# Initialize the condition to wait
